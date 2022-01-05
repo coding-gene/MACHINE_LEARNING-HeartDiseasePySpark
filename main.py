@@ -3,9 +3,14 @@
 # todo: https://www.youtube.com/watch?v=1a7bB1ZcZ3k
 # todo: https://www.youtube.com/watch?v=3LTSSzBZvXE
 from pyspark.sql import SparkSession
+from pyspark.ml.stat import Correlation
+from pyspark.ml.feature import VectorAssembler
+import seaborn as sns
+import matplotlib.pyplot as plt
 import logging
 import time
 import os
+import pandas as pd
 
 os.environ['HADOOP_HOME'] = r'C:\_SPARK\Hadoop'
 os.environ["JAVA_HOME"] = r'C:\_JAVA'
@@ -29,13 +34,32 @@ try:
         pass
     # Read parquet into pyspark DataFrame
     df_parquet = spark.read.parquet('df.parquet')
-    df_parquet.printSchema()
-    df_parquet.show(10)
-    # Split dataset
+    # Elementary data explanation
+    #df_parquet.printSchema()
+    #df_parquet.show(10)
+    # Split dataset into train & test
     train, test = df_parquet.randomSplit([0.7, 0.3], seed=7)
+    #print(f'Train: {train.count()}')
+    #print(f'Test: {test.count()}')
+    # todo: CORRELATION MATRIX
+        # convert to vector column
+    vector_col = "corr_features"
+    assembler = VectorAssembler(inputCols=df_parquet.columns, outputCol=vector_col)
+    df_vector = assembler.transform(df_parquet).select(vector_col)
+        # get a list of lists
+    matrix = Correlation.corr(df_vector, vector_col).collect()[0][0]
+    corrmatrix = matrix.toArray().tolist()
+        # corrmatrix to Pandas DataFrame
+    df_pandas = pd.DataFrame(corrmatrix, columns=df_parquet.columns, index=df_parquet.columns)
+        # plot a heatmap
+    sns.heatmap(df_pandas, annot=True, fmt=".2f", cmap='viridis', vmin=-1, vmax=1)
+    figure = plt.gcf()
+    figure.set_size_inches(20, 10)
+    plt.savefig('plots\correlationMatrix.png', dpi=300)
 
-    print(f'Train: {train.count()}')
-    print(f'Test: {test.count()}')
+    # todo: Logistic Regression
+    # todo: Linear Regression
+
 
 except Exception:
     logging.exception(f'Dogodila se greska sljedeceg sadrzaja:')
