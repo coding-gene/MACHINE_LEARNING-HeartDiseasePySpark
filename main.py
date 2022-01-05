@@ -22,12 +22,12 @@ try:
     spark = SparkSession.builder.appName("HeartDisease").config("spark.some.config.option", "some-value").getOrCreate()
     #spark.sparkContext.setLogLevel("WARN")
     df = spark.read.csv(r'dataset.csv', mode='DROPMALFORMED', inferSchema=True, header=True)
-    # Saving csv to parquet dataformat
+    # Saving csv to parquet dataformat if doesn't exists
     if not os.path.exists('df.parquet'):
         df.write.parquet('df.parquet')
     else:
         pass
-
+    # Read parquet into pyspark DataFrame
     df_parquet = spark.read.parquet('df.parquet')
     df_parquet.printSchema()
     df_parquet.show(10)
