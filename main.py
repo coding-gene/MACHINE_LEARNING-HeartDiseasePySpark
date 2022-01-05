@@ -34,13 +34,10 @@ try:
         pass
     # Read parquet into pyspark DataFrame
     df_parquet = spark.read.parquet('df.parquet')
+    df_pandas = df_parquet.toPandas()
     # Elementary data explanation
     #df_parquet.printSchema()
     #df_parquet.show(10)
-    # Split dataset into train & test
-    train, test = df_parquet.randomSplit([0.7, 0.3], seed=7)
-    #print(f'Train: {train.count()}')
-    #print(f'Test: {test.count()}')
     # todo: CORRELATION MATRIX
         # convert to vector column
     vector_col = "corr_features"
@@ -50,12 +47,29 @@ try:
     matrix = Correlation.corr(df_vector, vector_col).collect()[0][0]
     corrmatrix = matrix.toArray().tolist()
         # corrmatrix to Pandas DataFrame
-    df_pandas = pd.DataFrame(corrmatrix, columns=df_parquet.columns, index=df_parquet.columns)
+    df_corr = pd.DataFrame(corrmatrix, columns=df_parquet.columns, index=df_parquet.columns)
         # plot a heatmap
-    sns.heatmap(df_pandas, annot=True, fmt=".2f", cmap='viridis', vmin=-1, vmax=1)
+    sns.heatmap(df_corr, annot=True, fmt=".2f", cmap='viridis', vmin=-1, vmax=1)
     figure = plt.gcf()
     figure.set_size_inches(20, 10)
-    plt.savefig('plots\correlationMatrix.png', dpi=300)
+    plt.savefig(r'plots\1. correlationMatrix.png', dpi=300)
+    plt.close()
+    # todo: HISTOGRAM
+    df_pandas.hist()
+    figure = plt.gcf()
+    figure.set_size_inches(20, 10)
+    plt.savefig(r'plots\2. histogram.png', dpi=300)
+    plt.close()
+    # todo: BAR-PLOT TARGET COLUMN
+    sns.countplot(x='target', data=df_pandas)
+    figure = plt.gcf()
+    figure.set_size_inches(20, 10)
+    plt.savefig(r'plots\3. barPlot.png', dpi=300)
+    plt.close()
+    # todo: Prepare Data for Machine Learning algorithms
+    train, test = df_parquet.randomSplit([0.7, 0.3], seed=7)
+    # print(f'Train: {train.count()}')
+    # print(f'Test: {test.count()}')
 
     # todo: Logistic Regression
     # todo: Linear Regression
