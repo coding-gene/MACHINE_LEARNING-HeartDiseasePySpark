@@ -2,6 +2,7 @@
 # todo: https://towardsdatascience.com/predicting-presence-of-heart-diseases-using-machine-learning-36f00f3edb2c
 # todo: https://www.youtube.com/watch?v=1a7bB1ZcZ3k
 # todo: https://www.youtube.com/watch?v=3LTSSzBZvXE
+# todo: Konvertirat sve logging-e na engleski jezik
 from pyspark.sql import SparkSession
 from pyspark.ml.stat import Correlation
 from pyspark.ml.feature import VectorAssembler
@@ -24,9 +25,9 @@ try:
                         datefmt='%Y-%m-%d %H:%M:%S')
     logging.info(f'Pocetak izvrsavanja zadatka.')
     # Initializing spark session
-    spark = SparkSession.builder.appName("HeartDisease").config("spark.some.config.option", "some-value").getOrCreate()
-    #spark.sparkContext.setLogLevel("WARN")
+    spark = SparkSession.builder.appName('HeartDisease').config('spark.some.config.option', 'some-value').getOrCreate()
     df = spark.read.csv(r'dataset.csv', mode='DROPMALFORMED', inferSchema=True, header=True)
+    logging.info(f'Podatci uspjesno ucitani u pyspark.')
     # Saving csv to parquet dataformat if doesn't exists
     if not os.path.exists('df.parquet'):
         df.write.parquet('df.parquet')
@@ -35,6 +36,7 @@ try:
     # Read parquet into pyspark DataFrame
     df_parquet = spark.read.parquet('df.parquet')
     df_pandas = df_parquet.toPandas()
+    logging.info(f'PySpark DataFrame uspjesno inicijaliziran u parquet i pandas data format.')
     # Elementary data explanation
     #df_parquet.printSchema()
     #df_parquet.show(10)
@@ -54,22 +56,24 @@ try:
     figure.set_size_inches(20, 10)
     plt.savefig(r'plots\1. correlationMatrix.png', dpi=300)
     plt.close()
+    logging.info(f'CorrelationMatrix uspjesno proveden.')
     # todo: HISTOGRAM
     df_pandas.hist()
     figure = plt.gcf()
     figure.set_size_inches(20, 10)
     plt.savefig(r'plots\2. histogram.png', dpi=300)
     plt.close()
+    logging.info(f'Histogram uspjesno proveden.')
     # todo: BAR-PLOT TARGET COLUMN
     sns.countplot(x='target', data=df_pandas)
     figure = plt.gcf()
     figure.set_size_inches(20, 10)
     plt.savefig(r'plots\3. barPlot.png', dpi=300)
     plt.close()
+    logging.info(f'Bar-Plot uspjesno proveden.')
     # todo: Prepare Data for Machine Learning algorithms
     train, test = df_parquet.randomSplit([0.7, 0.3], seed=7)
-    # print(f'Train: {train.count()}')
-    # print(f'Test: {test.count()}')
+    logging.info(f'Podatci uspjesno podjeljeni na train (ukupno: {train.count()}), i test (ukupno: {test.count()}).')
 
     # todo: Logistic Regression
     # todo: Linear Regression
