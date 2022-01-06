@@ -6,6 +6,7 @@ from pyspark.ml.classification import LogisticRegression
 from pyspark.ml.classification import RandomForestClassifier
 from pyspark.ml.classification import DecisionTreeClassifier
 from pyspark.ml.classification import GBTClassifier
+from pyspark.ml.classification import LinearSVC
 from pyspark.ml.evaluation import MulticlassClassificationEvaluator
 import pandas as pd
 import seaborn as sns
@@ -88,25 +89,36 @@ try:
     lorModel = lor.fit(train)
     lor_predictions = lorModel.transform(test)
     multi_evaluator = MulticlassClassificationEvaluator(labelCol='target', metricName='accuracy')
-    logging.info(f'\tLogistic Regression Accuracy: {multi_evaluator.evaluate(lor_predictions)}')
+    logging.info(f'\tLogistic Regression Accuracy: '
+                 f'{round((multi_evaluator.evaluate(lor_predictions)*100), 1)}%')
     # todo: Random Forest Classifier
     rf = RandomForestClassifier(featuresCol='features', labelCol='target', maxDepth=5)
     rfModel = rf.fit(train)
     rf_predictions = rfModel.transform(test)
     multi_evaluator = MulticlassClassificationEvaluator(labelCol='target', metricName='accuracy')
-    logging.info(f'\tRandom Forest Classifier Accuracy: {multi_evaluator.evaluate(rf_predictions)}')
+    logging.info(f'\tRandom Forest Classifier Accuracy: '
+                 f'{round((multi_evaluator.evaluate(rf_predictions)*100), 1)}%')
     # todo: Decision Tree Classifier
     dt = DecisionTreeClassifier(featuresCol='features', labelCol='target', maxDepth=5)
     dtModel = dt.fit(train)
     dt_predictions = dtModel.transform(test)
     multi_evaluator = MulticlassClassificationEvaluator(labelCol='target', metricName='accuracy')
-    logging.info(f'\tDecision Tree Classifier Accuracy: {multi_evaluator.evaluate(dt_predictions)}')
+    logging.info(f'\tDecision Tree Classifier Accuracy: '
+                 f'{round((multi_evaluator.evaluate(dt_predictions)*100), 1)}%')
     # todo: Gradient-boosted Tree classifier
     gb = GBTClassifier(featuresCol='features', labelCol='target', maxDepth=5)
     gbModel = gb.fit(train)
     gb_predictions = gbModel.transform(test)
     multi_evaluator = MulticlassClassificationEvaluator(labelCol='target', metricName='accuracy')
-    logging.info(f'\tGradient-boosted Tree classifier Accuracy: {multi_evaluator.evaluate(gb_predictions)}')
+    logging.info(f'\tGradient-boosted Tree classifier Accuracy: '
+                 f'{round((multi_evaluator.evaluate(gb_predictions)*100), 1)}%')
+    # todo: Linear Support Vector Machine
+    sv = LinearSVC(featuresCol='features', labelCol='target', maxIter=10)
+    svModel = sv.fit(train)
+    sv_predictions = svModel.transform(test)
+    multi_evaluator = MulticlassClassificationEvaluator(labelCol='target', metricName='accuracy')
+    logging.info(f'\tLinear Support Vector Machine Accuracy: '
+                 f'{round((multi_evaluator.evaluate(sv_predictions)*100), 1)}%')
 except Exception:
     logging.exception('An error occurred during job performing:')
 else:
