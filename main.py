@@ -78,14 +78,8 @@ try:
     plt.close()
     logging.info(f'Bar-Plot uspjesno proveden.')
     # todo: Prepare Data for Machine Learning algorithms
-    required_features = [
-                            'age', 'sex',
-                            'cp', 'trestbps',
-                            'chol', 'fbs',
-                            'restecg', 'thalach',
-                            'exang', 'oldpeak',
-                            'slope', 'ca', 'thal'
-                        ]
+    required_features = ['age', 'sex', 'cp', 'trestbps', 'chol', 'fbs', 'restecg',
+                         'thalach', 'exang', 'oldpeak', 'slope', 'ca', 'thal']
     ml_assembler = VectorAssembler(inputCols=required_features, outputCol='features')
     ml_dataset = ml_assembler.transform(df_parquet)
     #ml_dataset.show(10)
