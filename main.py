@@ -6,6 +6,9 @@
 from pyspark.sql import SparkSession
 from pyspark.ml.stat import Correlation
 from pyspark.ml.feature import VectorAssembler
+from pyspark.sql.functions import isnull, when, count, col
+from pyspark.ml.classification import LogisticRegression
+from pyspark.ml.evaluation import MulticlassClassificationEvaluator
 import seaborn as sns
 import matplotlib.pyplot as plt
 import logging
@@ -37,9 +40,11 @@ try:
     df_parquet = spark.read.parquet('df.parquet')
     df_pandas = df_parquet.toPandas()
     logging.info(f'PySpark DataFrame uspjesno inicijaliziran u parquet i pandas data format.')
-    # Elementary data explanation
+    # Elementary data exploration
     #df_parquet.printSchema()
     #df_parquet.show(10)
+    # print(df_parquet.columns)
+    #df_parquet.select([count(when(isnull(c), c)).alias(c) for c in df_parquet.columns]).show()
     # todo: CORRELATION MATRIX
         # convert to vector column
     vector_col = "corr_features"
@@ -72,10 +77,19 @@ try:
     plt.close()
     logging.info(f'Bar-Plot uspjesno proveden.')
     # todo: Prepare Data for Machine Learning algorithms
-    train, test = df_parquet.randomSplit([0.7, 0.3], seed=7)
+    required_features = ['age', 'sex', 'cp', 'trestbps', 'chol', 'fbs', 'restecg', 'thalach', 'exang', 'oldpeak', 'slope', 'ca', 'thal']
+    ml_assembler = VectorAssembler(inputCols=required_features, outputCol='features')
+    ml_dataset = ml_assembler.transform(df_parquet)
+    #ml_dataset.show(10)
+    train, test = ml_dataset.randomSplit([0.7, 0.3], seed=7)
     logging.info(f'Podatci uspjesno podjeljeni na train (ukupno: {train.count()}), i test (ukupno: {test.count()}).')
-
+    logging.info(f'Resaults of Machine Learning algorithms:')
     # todo: Logistic Regression
+    lr = LogisticRegression(featuresCol='features', labelCol='target', maxIter=10)
+    lrModel = lr.fit(train)
+    lr_predictions = lrModel.transform(test)
+    multi_evaluator = MulticlassClassificationEvaluator(labelCol='target', metricName='accuracy')
+    logging.info(f'\tLogistic Regression Accuracy: {multi_evaluator.evaluate(lr_predictions)}')
     # todo: Linear Regression
 
 
