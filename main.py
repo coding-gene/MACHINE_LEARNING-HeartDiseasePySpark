@@ -113,4 +113,4 @@ else:
     logging.info('Job ended.')
 finally:
     logging.info(
-        f'Job duration: {time.strftime("%H hours, %M minutes i %S seconds.", time.gmtime(time.time() - start_time))}\n')
+        f'Job duration: {time.strftime("%H hours, %M minutes, %S seconds.", time.gmtime(time.time() - start_time))}\n')
