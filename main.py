@@ -3,6 +3,7 @@
 # todo: https://www.youtube.com/watch?v=1a7bB1ZcZ3k
 # todo: https://www.youtube.com/watch?v=3LTSSzBZvXE
 # todo: Konvertirat sve logging-e na engleski jezik
+# todo: https://github.com/harunurrashid97/Machine-learning-with-PySpark/tree/master/First%20PySpark%20ml%20model
 from pyspark.sql import SparkSession
 from pyspark.ml.stat import Correlation
 from pyspark.ml.feature import VectorAssembler
