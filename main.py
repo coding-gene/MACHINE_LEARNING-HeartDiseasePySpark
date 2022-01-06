@@ -7,7 +7,7 @@ from pyspark.sql import SparkSession
 from pyspark.ml.stat import Correlation
 from pyspark.ml.feature import VectorAssembler
 from pyspark.sql.functions import isnull, when, count, col
-from pyspark.ml.classification import LogisticRegression
+from pyspark.ml.classification import LogisticRegression, RandomForestClassifier, DecisionTreeClassifier, GBTClassifier
 from pyspark.ml.evaluation import MulticlassClassificationEvaluator
 import seaborn as sns
 import matplotlib.pyplot as plt
@@ -77,22 +77,44 @@ try:
     plt.close()
     logging.info(f'Bar-Plot uspjesno proveden.')
     # todo: Prepare Data for Machine Learning algorithms
-    required_features = ['age', 'sex', 'cp', 'trestbps', 'chol', 'fbs', 'restecg', 'thalach', 'exang', 'oldpeak', 'slope', 'ca', 'thal']
+    required_features = [
+                            'age', 'sex',
+                            'cp', 'trestbps',
+                            'chol', 'fbs',
+                            'restecg', 'thalach',
+                            'exang', 'oldpeak',
+                            'slope', 'ca', 'thal'
+                        ]
     ml_assembler = VectorAssembler(inputCols=required_features, outputCol='features')
     ml_dataset = ml_assembler.transform(df_parquet)
     #ml_dataset.show(10)
     train, test = ml_dataset.randomSplit([0.7, 0.3], seed=7)
-    logging.info(f'Podatci uspjesno podjeljeni na train (ukupno: {train.count()}), i test (ukupno: {test.count()}).')
+    logging.info(f'Podatci uspjesno podjeljeni na train ({train.count()}), i test ({test.count()}).')
     logging.info(f'Resaults of Machine Learning algorithms:')
     # todo: Logistic Regression
-    lr = LogisticRegression(featuresCol='features', labelCol='target', maxIter=10)
-    lrModel = lr.fit(train)
-    lr_predictions = lrModel.transform(test)
+    lor = LogisticRegression(featuresCol='features', labelCol='target', maxIter=10)
+    lorModel = lor.fit(train)
+    lor_predictions = lorModel.transform(test)
     multi_evaluator = MulticlassClassificationEvaluator(labelCol='target', metricName='accuracy')
-    logging.info(f'\tLogistic Regression Accuracy: {multi_evaluator.evaluate(lr_predictions)}')
-    # todo: Linear Regression
-
-
+    logging.info(f'\tLogistic Regression Accuracy: {multi_evaluator.evaluate(lor_predictions)}')
+    # todo: Random Forest Classifier
+    rf = RandomForestClassifier(featuresCol='features', labelCol='target', maxDepth=5)
+    rfModel = rf.fit(train)
+    rf_predictions = rfModel.transform(test)
+    multi_evaluator = MulticlassClassificationEvaluator(labelCol='target', metricName='accuracy')
+    logging.info(f'\tRandom Forest Classifier Accuracy: {multi_evaluator.evaluate(rf_predictions)}')
+    # todo: Decision Tree Classifier
+    dt = DecisionTreeClassifier(featuresCol='features', labelCol='target', maxDepth=5)
+    dtModel = dt.fit(train)
+    dt_predictions = dtModel.transform(test)
+    multi_evaluator = MulticlassClassificationEvaluator(labelCol='target', metricName='accuracy')
+    logging.info(f'\tDecision Tree Classifier Accuracy: {multi_evaluator.evaluate(dt_predictions)}')
+    # todo: Gradient-boosted Tree classifier
+    gb = GBTClassifier(featuresCol='features', labelCol='target', maxDepth=5)
+    gbModel = gb.fit(train)
+    gb_predictions = gbModel.transform(test)
+    multi_evaluator = MulticlassClassificationEvaluator(labelCol='target', metricName='accuracy')
+    logging.info(f'\tGradient-boosted Tree classifier Accuracy: {multi_evaluator.evaluate(gb_predictions)}')
 except Exception:
     logging.exception(f'Dogodila se greska sljedeceg sadrzaja:')
 else:
