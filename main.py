@@ -7,6 +7,7 @@ from pyspark.ml.classification import RandomForestClassifier
 from pyspark.ml.classification import DecisionTreeClassifier
 from pyspark.ml.classification import GBTClassifier
 from pyspark.ml.classification import LinearSVC
+from pyspark.ml.classification import MultilayerPerceptronClassifier
 from pyspark.ml.evaluation import MulticlassClassificationEvaluator
 import pandas as pd
 import seaborn as sns
@@ -119,6 +120,22 @@ try:
     multi_evaluator = MulticlassClassificationEvaluator(labelCol='target', metricName='accuracy')
     logging.info(f'\tLinear Support Vector Machine Accuracy: '
                  f'{round((multi_evaluator.evaluate(sv_predictions)*100), 1)}%')
+
+    # todo: Multilayer perceptron classifier
+    train = train.withColumnRenamed('target', 'label')
+    test = test.withColumnRenamed('target', 'label')
+    layers = [4, 2, 2]
+    mp = MultilayerPerceptronClassifier(featuresCol='features', labelCol='label', maxIter=10,
+                                        layers=layers, blockSize=128, seed=1234)
+    mpModel = mp.fit(train)
+    print(mpModel)
+    mp_predictions = mpModel.transform(test)
+    #mp_predictions.show()
+    mp_predictionAndLabels = mp_predictions.select('prediction', 'label')
+    #mp_predictionAndLabels.show()
+    multi_evaluator = MulticlassClassificationEvaluator(metricName='accuracy')
+    #logging.info(f'\tMultilayer perceptron classifier Accuracy: '
+    #             f'{multi_evaluator.evaluate(mp_predictionAndLabels)}%')
 except Exception:
     logging.exception('An error occurred during job performing:')
 else:
