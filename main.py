@@ -1,7 +1,7 @@
 from pyspark.sql import SparkSession
+from pyspark.sql.functions import isnull, when, count
 from pyspark.ml.stat import Correlation
 from pyspark.ml.feature import VectorAssembler
-from pyspark.sql.functions import isnull, when, count
 from pyspark.ml.classification import LogisticRegression
 from pyspark.ml.classification import RandomForestClassifier
 from pyspark.ml.classification import DecisionTreeClassifier
@@ -130,11 +130,11 @@ try:
     mpModel = mp.fit(train)
     print(mpModel)
     mp_predictions = mpModel.transform(test)
-    #mp_predictions.show()
+    # mp_predictions.show()
     mp_predictionAndLabels = mp_predictions.select('prediction', 'label')
-    #mp_predictionAndLabels.show()
+    # mp_predictionAndLabels.show()
     multi_evaluator = MulticlassClassificationEvaluator(metricName='accuracy')
-    #logging.info(f'\tMultilayer perceptron classifier Accuracy: '
+    # logging.info(f'\tMultilayer perceptron classifier Accuracy: '
     #             f'{multi_evaluator.evaluate(mp_predictionAndLabels)}%')
 except Exception:
     logging.exception('An error occurred during job performing:')
