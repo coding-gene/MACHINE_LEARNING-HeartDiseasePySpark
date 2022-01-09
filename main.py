@@ -83,7 +83,7 @@ try:
     ml_dataset = ml_assembler.transform(df_parquet)
     # ml_dataset.show(10)
     train, test = ml_dataset.randomSplit([0.7, 0.3], seed=7)
-    logging.info(f'Data successfully split into train ({train.count()}), test test ({test.count()}) group.')
+    logging.info(f'Data successfully split into train ({train.count()}), test ({test.count()}) group.')
     logging.info('Results of Machine Learning Algorithms:')
     # todo: Logistic Regression
     lor = LogisticRegression(featuresCol='features', labelCol='target', maxIter=10)
